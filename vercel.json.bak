@@ -1,0 +1,9 @@
+{{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/Developer/codex/zazz/vidio/server/:path*",
+      "destination": "https://video.domainlu.com/Developer/codex/zazz/vidio/server/:path*"
+    }
+  ]
+}
