@@ -1,0 +1,4313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AnimeOtaku — Nonton Anime</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#f3eedf;
+  --paper2:#e9e0c9;
+  --panel:#fffdf6;
+  --ink:#171310;
+  --red:#e8362b;
+  --red2:#b8241c;
+  --yellow:#f4c531;
+  --green:#2f8f5b;
+  --muted:#70685d;
+  --border:3px solid var(--ink);
+  --shadow:5px 5px 0 var(--ink);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  min-height:100vh;
+  padding-bottom:76px;
+  color:var(--ink);
+  font-family:"Space Grotesk",sans-serif;
+  background:
+    radial-gradient(var(--ink) 1px,transparent 1.4px) 0 0/16px 16px,
+    var(--paper);
+}
+
+body.no-scroll{
+  overflow:hidden;
+}
+
+button,input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+  border:0;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+h1,h2,h3,h4,.logo,.display{
+  font-family:"Bangers",cursive;
+  font-weight:400;
+  letter-spacing:.03em;
+}
+
+::selection{
+  color:#fff;
+  background:var(--red);
+}
+
+/* =========================
+   TAP HIGHLIGHT / FOCUS
+========================= */
+
+html{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button,a,input,textarea,select,summary,.anime-card,.menu-item,
+.bottom-btn,.episode,.history-item{
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+}
+
+button,input[type="button"],input[type="submit"]{
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+:focus{
+  outline:none;
+}
+
+:focus-visible{
+  outline:2.5px solid var(--red);
+  outline-offset:2px;
+  border-radius:6px;
+}
+
+/* =========================
+   OFFLINE BANNER
+========================= */
+
+.offline-banner{
+  display:none;
+  position:sticky;
+  top:0;
+  z-index:110;
+  padding:9px 16px;
+  color:#fff;
+  background:var(--red2);
+  border-bottom:var(--border);
+  font-size:12px;
+  font-weight:800;
+  text-align:center;
+}
+
+.offline-banner.show{
+  display:block;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  min-height:70px;
+  padding:12px 28px;
+  background:rgba(243,238,223,.97);
+  border-bottom:var(--border);
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:max-content;
+  font-size:31px;
+  cursor:pointer;
+}
+
+.logo-mark{
+  width:29px;
+  height:29px;
+  display:block;
+  background:var(--red);
+  border:3px solid var(--ink);
+  border-radius:5px;
+  transform:rotate(-7deg);
+}
+
+.logo-anime{
+  color:var(--ink);
+}
+
+.logo-otaku{
+  color:var(--yellow);
+  -webkit-text-stroke:1px var(--ink);
+  text-shadow:2px 2px 0 var(--ink);
+}
+
+.header-search{
+  flex:1;
+  max-width:520px;
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 15px;
+  background:var(--panel);
+  border:2.5px solid var(--ink);
+  border-radius:100px;
+}
+
+.header-search svg{
+  flex:none;
+}
+
+.header-search input{
+  width:100%;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--ink);
+  font-weight:600;
+}
+
+.header-search input::placeholder{
+  color:var(--muted);
+}
+
+.header-account{
+  width:40px;
+  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  border:2.5px solid var(--ink);
+  border-radius:50%;
+  background:var(--yellow);
+  font-weight:800;
+}
+
+.menu-button{
+  width:43px;
+  height:43px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  flex:none;
+  border:2.5px solid var(--ink);
+  border-radius:9px;
+  background:var(--panel);
+}
+
+.menu-button span{
+  width:20px;
+  height:2.5px;
+  background:var(--ink);
+  border-radius:5px;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:150;
+  background:rgba(23,19,16,.55);
+  opacity:0;
+  visibility:hidden;
+  transition:.2s;
+}
+
+.overlay.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.sidebar{
+  position:fixed;
+  top:0;
+  right:0;
+  z-index:160;
+  width:min(360px,88vw);
+  height:100%;
+  padding:24px;
+  background:var(--panel);
+  border-left:var(--border);
+  box-shadow:-7px 0 0 var(--ink);
+  transform:translateX(105%);
+  transition:transform .25s ease;
+}
+
+.sidebar.active{
+  transform:translateX(0);
+}
+
+.sidebar-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:20px;
+  border-bottom:2px solid var(--ink);
+}
+
+.sidebar-title{
+  font-size:30px;
+}
+
+.close-menu{
+  width:38px;
+  height:38px;
+  border:2.5px solid var(--ink);
+  border-radius:8px;
+  background:var(--paper);
+  font-size:22px;
+  font-weight:700;
+}
+
+.menu-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:22px;
+}
+
+.menu-item{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:13px 14px;
+  border:2.5px solid var(--ink);
+  border-radius:10px;
+  background:var(--paper);
+  font-size:14px;
+  font-weight:800;
+  transition:.12s;
+}
+
+.menu-item:hover{
+  transform:translateX(-3px);
+  box-shadow:4px 4px 0 var(--ink);
+}
+
+.menu-icon{
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* =========================
+   VIEW
+========================= */
+
+.view{
+  display:none;
+  animation:appear .2s ease;
+}
+
+.view.active{
+  display:block;
+}
+
+@keyframes appear{
+  from{
+    opacity:0;
+    transform:translateY(7px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:65px 40px 58px;
+  border-bottom:var(--border);
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(23,19,16,.05) 0 2px,
+      transparent 2px 22px
+    ),
+    var(--paper2);
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+  max-width:700px;
+}
+
+.eyebrow{
+  display:inline-block;
+  margin-bottom:15px;
+  padding:5px 13px;
+  color:#fff;
+  background:var(--red);
+  border:2.5px solid var(--ink);
+  border-radius:100px;
+  font-size:11px;
+  font-weight:800;
+  transform:rotate(-2deg);
+}
+
+.hero h1{
+  font-size:clamp(48px,8vw,82px);
+  line-height:.98;
+  text-shadow:4px 4px 0 var(--red);
+}
+
+.hero h1 span{
+  color:var(--yellow);
+  -webkit-text-stroke:1.5px var(--ink);
+}
+
+.hero p{
+  max-width:570px;
+  margin:18px 0 25px;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:15px;
+  font-weight:600;
+}
+
+.hero-buttons{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  padding:12px 22px;
+  border:3px solid var(--ink);
+  border-radius:10px;
+  box-shadow:4px 4px 0 var(--ink);
+  font-size:14px;
+  font-weight:800;
+  transition:.1s;
+}
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 var(--ink);
+}
+
+.btn-red{
+  color:#fff;
+  background:var(--red);
+}
+
+.btn-white{
+  background:var(--panel);
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.section{
+  padding:35px 40px 10px;
+}
+
+.section-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:17px;
+}
+
+.section-title{
+  font-size:27px;
+}
+
+.section-link{
+  color:var(--red);
+  font-size:13px;
+  font-weight:800;
+  text-decoration:underline;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card-row{
+  display:flex;
+  gap:17px;
+  overflow-x:auto;
+  padding:2px 3px 15px;
+  scrollbar-width:thin;
+}
+
+.card-row::-webkit-scrollbar{
+  height:7px;
+}
+
+.card-row::-webkit-scrollbar-thumb{
+  background:var(--ink);
+  border-radius:20px;
+}
+
+.anime-card{
+  position:relative;
+  flex:0 0 178px;
+  overflow:hidden;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:11px;
+  box-shadow:4px 4px 0 var(--ink);
+  cursor:pointer;
+  transition:.12s;
+}
+
+.anime-card:hover{
+  transform:translate(-2px,-3px);
+  box-shadow:7px 7px 0 var(--ink);
+}
+
+.poster{
+  position:relative;
+  height:238px;
+  display:flex;
+  align-items:flex-end;
+  padding:12px;
+  overflow:hidden;
+  border-bottom:var(--border);
+  background:linear-gradient(145deg,#3a2e5c,#8b7fff);
+}
+
+.poster::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(to top,rgba(0,0,0,.65),transparent 65%),
+    repeating-linear-gradient(
+      130deg,
+      rgba(255,255,255,.07) 0 2px,
+      transparent 2px 20px
+    );
+}
+
+.poster-unknown{
+  align-items:center;
+  justify-content:center;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #555 0 12px,
+      #444 12px 24px
+    );
+}
+
+.poster-unknown .poster-title{
+  font-family:"Bangers",cursive;
+  font-size:38px;
+  letter-spacing:.08em;
+  color:#ccc;
+  -webkit-text-stroke:0;
+}
+
+.poster-title{
+  position:relative;
+  z-index:2;
+  color:#fff;
+  font-family:"Bangers",cursive;
+  font-size:21px;
+  line-height:1.1;
+  text-shadow:2px 2px 0 #000;
+}
+
+.badge{
+  position:absolute;
+  z-index:5;
+  top:9px;
+  left:9px;
+  padding:4px 9px;
+  color:#fff;
+  background:var(--red);
+  border:2px solid var(--ink);
+  border-radius:100px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.badge.new{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+.card-info{
+  padding:11px 12px 14px;
+}
+
+.card-name{
+  min-height:34px;
+  font-size:13px;
+  font-weight:800;
+  line-height:1.3;
+}
+
+.card-meta{
+  display:flex;
+  justify-content:space-between;
+  gap:5px;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:700;
+}
+
+/* =========================
+   CATALOG GRID
+========================= */
+
+.page-head{
+  padding:42px 40px 20px;
+}
+
+.page-head h1{
+  font-size:44px;
+  text-shadow:3px 3px 0 var(--red);
+}
+
+.page-head p{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:14px;
+  font-weight:600;
+}
+
+.filters{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  padding:0 40px 10px;
+}
+
+.filter{
+  padding:8px 15px;
+  border:2.5px solid var(--ink);
+  border-radius:100px;
+  background:var(--panel);
+  font-size:12px;
+  font-weight:800;
+}
+
+.filter.active{
+  background:var(--yellow);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(178px,1fr));
+  gap:17px;
+  padding:18px 40px 80px;
+}
+
+.empty{
+  padding:70px 20px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.empty h2{
+  color:var(--ink);
+  font-size:30px;
+  margin-bottom:5px;
+}
+
+/* =========================
+   DETAIL
+========================= */
+
+.detail-hero{
+  display:flex;
+  align-items:flex-end;
+  gap:28px;
+  min-height:350px;
+  padding:75px 40px 38px;
+  border-bottom:var(--border);
+  background:
+    repeating-linear-gradient(
+      120deg,
+      rgba(23,19,16,.05) 0 2px,
+      transparent 2px 24px
+    ),
+    var(--paper2);
+}
+
+.back-button{
+  position:absolute;
+  top:87px;
+  left:40px;
+  padding:8px 14px;
+  border:2.5px solid var(--ink);
+  border-radius:100px;
+  background:var(--panel);
+  font-size:12px;
+  font-weight:800;
+}
+
+.detail-poster{
+  flex:none;
+  width:155px;
+  height:215px;
+  display:flex;
+  align-items:flex-end;
+  padding:13px;
+  border:var(--border);
+  border-radius:11px;
+  box-shadow:5px 5px 0 var(--ink);
+  background:linear-gradient(145deg,#5c1f2e,#f5a623);
+}
+
+.detail-poster span{
+  color:#fff;
+  font-family:"Bangers",cursive;
+  font-size:21px;
+  text-shadow:2px 2px #000;
+}
+
+.detail-poster.poster-unknown{
+  align-items:center;
+  justify-content:center;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #555 0 12px,
+      #444 12px 24px
+    );
+}
+
+.detail-poster.poster-unknown span{
+  font-size:30px;
+  color:#ccc;
+}
+
+.detail-info{
+  max-width:650px;
+}
+
+.detail-info h1{
+  font-size:clamp(40px,6vw,58px);
+  line-height:1;
+  text-shadow:3px 3px 0 var(--red);
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:13px 0;
+}
+
+.tag{
+  padding:5px 10px;
+  border:2px solid var(--ink);
+  border-radius:100px;
+  background:var(--panel);
+  font-size:11px;
+  font-weight:800;
+}
+
+.detail-info p{
+  color:var(--muted);
+  line-height:1.65;
+  font-size:13px;
+  font-weight:600;
+}
+
+.detail-content{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 290px;
+  gap:35px;
+  max-width:1100px;
+  margin:auto;
+  padding:38px 40px 90px;
+}
+
+.episode-title{
+  margin-bottom:15px;
+  font-size:29px;
+}
+
+.episodes{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.episode{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:12px 14px;
+  border:2.5px solid var(--ink);
+  border-radius:10px;
+  background:var(--panel);
+}
+
+.episode-number{
+  width:30px;
+  color:var(--red);
+  font-family:"Bangers",cursive;
+  font-size:22px;
+}
+
+.episode-name{
+  flex:1;
+  font-size:13px;
+  font-weight:800;
+}
+
+.episode-action{
+  padding:6px 10px;
+  color:#fff;
+  background:var(--red);
+  border:2px solid var(--ink);
+  border-radius:7px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.episode-action.unlocked{
+  background:var(--green);
+}
+
+.side-box{
+  height:max-content;
+  padding:20px;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+}
+
+.side-box h3{
+  color:var(--red);
+  font-size:21px;
+  margin-bottom:15px;
+}
+
+.stat{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.stat span:last-child{
+  font-weight:800;
+}
+
+/* =========================
+   WATCH
+========================= */
+
+.watch{
+  max-width:1100px;
+  margin:auto;
+  padding:35px 40px 90px;
+}
+
+.video-box{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#111;
+  border:var(--border);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+}
+
+.player-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+  object-fit:contain;
+}
+
+.video-empty{
+  position:relative;
+  z-index:2;
+  max-width:260px;
+  padding:0 16px;
+  color:#fff;
+  text-align:center;
+}
+
+.video-box.has-source .video-empty{
+  display:none;
+}
+
+.video-empty .play-badge{
+  width:65px;
+  height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto auto 12px;
+  border:3px solid #fff;
+  border-radius:50%;
+}
+
+.video-empty .play-badge svg{
+  width:22px;
+  height:22px;
+}
+
+.video-empty p{
+  margin-top:5px;
+  color:#aaa;
+  font-size:11px;
+}
+
+/* =========================
+   PLAYER CONTROLS
+========================= */
+
+.player-controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:4;
+  padding:8px 14px 12px;
+  background:linear-gradient(to top,rgba(0,0,0,.88),transparent);
+  opacity:0;
+  transition:opacity .18s;
+}
+
+.video-box:hover .player-controls,
+.video-box:focus-within .player-controls,
+.video-box.controls-visible .player-controls,
+.video-box:fullscreen .player-controls,
+.video-box:-webkit-full-screen .player-controls{
+  opacity:1;
+}
+
+.player-seek input[type="range"]{
+  width:100%;
+  height:16px;
+  accent-color:var(--red);
+  cursor:pointer;
+}
+
+.player-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:4px;
+}
+
+.player-left,.player-right{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.player-btn{
+  width:32px;
+  height:32px;
+  position:relative;
+  display:flex;
+  flex:none;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  background:rgba(255,255,255,.14);
+  border:1.5px solid rgba(255,255,255,.4);
+  border-radius:8px;
+}
+
+.player-btn svg{
+  width:16px;
+  height:16px;
+}
+
+.player-btn span{
+  position:absolute;
+  bottom:-4px;
+  right:-4px;
+  padding:1px 3px;
+  color:var(--ink);
+  background:var(--yellow);
+  border-radius:5px;
+  font-size:7px;
+  font-weight:800;
+}
+
+.player-volume{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.player-volume input[type="range"]{
+  width:56px;
+  accent-color:var(--red);
+  cursor:pointer;
+}
+
+.player-time{
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+}
+
+@media (max-width:520px){
+  .player-time{display:none}
+  .player-volume input[type="range"]{width:40px}
+}
+
+.video-box:fullscreen,
+.video-box:-webkit-full-screen{
+  border:0;
+  border-radius:0;
+}
+
+.watch-info{
+  padding:22px 0;
+}
+
+.watch-info h1{
+  font-size:35px;
+}
+
+.watch-info p{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:600;
+}
+
+/* =========================
+   KEY PANEL
+========================= */
+
+.key-panel{
+  margin:25px 0;
+  padding:20px;
+  background:#fff4d6;
+  border:var(--border);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+}
+
+.key-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+}
+
+.key-title{
+  font-family:"Bangers",cursive;
+  font-size:25px;
+}
+
+.key-count{
+  padding:7px 12px;
+  color:var(--ink);
+  background:var(--yellow);
+  border:2px solid var(--ink);
+  border-radius:100px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.key-panel p{
+  margin:9px 0 14px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:600;
+}
+
+.progress{
+  height:11px;
+  overflow:hidden;
+  background:var(--paper);
+  border:2px solid var(--ink);
+  border-radius:100px;
+}
+
+.progress-bar{
+  width:66%;
+  height:100%;
+  background:var(--red);
+}
+
+.reward-btn{
+  margin-top:14px;
+  padding:10px 15px;
+  color:#fff;
+  background:var(--red);
+  border:2.5px solid var(--ink);
+  border-radius:8px;
+  font-size:12px;
+  font-weight:800;
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.history-list{
+  max-width:700px;
+  padding:0 40px 90px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.history-item{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:13px;
+  background:var(--panel);
+  border:2.5px solid var(--ink);
+  border-radius:10px;
+  box-shadow:4px 4px 0 var(--ink);
+}
+
+.history-poster{
+  width:50px;
+  height:60px;
+  flex:none;
+  border:2px solid var(--ink);
+  border-radius:6px;
+  background:linear-gradient(145deg,#3a2e5c,#8b7fff);
+}
+
+.history-info{
+  flex:1;
+}
+
+.history-info h3{
+  font-family:"Space Grotesk",sans-serif;
+  font-size:13px;
+  font-weight:800;
+}
+
+.history-info p{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:600;
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile-wrap{
+  max-width:500px;
+  padding:0 40px 90px;
+}
+
+.profile-card{
+  padding:28px;
+  text-align:center;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+}
+
+.profile-avatar{
+  width:76px;
+  height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 12px;
+  border:3px solid var(--ink);
+  border-radius:50%;
+  background:var(--yellow);
+  font-size:24px;
+  font-weight:800;
+}
+
+.profile-name{
+  font-size:29px;
+}
+
+.profile-role{
+  margin-top:4px;
+  color:var(--red);
+  font-size:12px;
+  font-weight:800;
+}
+
+.profile-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:22px;
+}
+
+.profile-stat{
+  padding:13px;
+  border:2px solid var(--ink);
+  border-radius:9px;
+  background:var(--paper);
+}
+
+.profile-stat strong{
+  display:block;
+  font-size:20px;
+}
+
+.profile-stat span{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+}
+
+/* =========================
+   DEVELOPMENT
+========================= */
+
+.dev-wrap{
+  max-width:850px;
+  margin:auto;
+  padding:45px 40px 90px;
+}
+
+.dev-card{
+  position:relative;
+  overflow:hidden;
+  padding:35px;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:15px;
+  box-shadow:7px 7px 0 var(--ink);
+}
+
+.dev-card::before{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  right:-70px;
+  top:-70px;
+  background:var(--yellow);
+  border:3px solid var(--ink);
+  border-radius:50%;
+}
+
+.dev-label{
+  display:inline-block;
+  padding:5px 11px;
+  color:#fff;
+  background:var(--red);
+  border:2px solid var(--ink);
+  border-radius:100px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.dev-card h1{
+  margin-top:15px;
+  font-size:55px;
+  text-shadow:3px 3px 0 var(--red);
+}
+
+.dev-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:25px;
+}
+
+.dev-item{
+  padding:15px;
+  border:2px solid var(--ink);
+  border-radius:9px;
+  background:var(--paper);
+}
+
+.dev-item small{
+  display:block;
+  margin-bottom:4px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.dev-item strong{
+  font-size:14px;
+}
+
+.dev-description{
+  margin-top:20px;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* =========================
+   SAWERIA / SOCIAL
+========================= */
+
+.support-wrap{
+  max-width:850px;
+  margin:auto;
+  padding:45px 40px 90px;
+}
+
+.support-card{
+  padding:30px;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+}
+
+.support-card h1{
+  font-size:46px;
+  text-shadow:3px 3px 0 var(--red);
+}
+
+.support-card p{
+  max-width:600px;
+  margin:9px 0 22px;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:13px;
+  font-weight:600;
+}
+
+.social-list{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.social{
+  padding:13px;
+  border:2.5px solid var(--ink);
+  border-radius:9px;
+  background:var(--paper);
+  font-size:12px;
+  font-weight:800;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-bg{
+  position:fixed;
+  inset:0;
+  z-index:200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(23,19,16,.6);
+  opacity:0;
+  visibility:hidden;
+  transition:.2s;
+}
+
+.modal-bg.active{
+  opacity:1;
+  visibility:visible;
+}
+
+.modal{
+  width:min(390px,100%);
+  padding:27px;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:14px;
+  box-shadow:7px 7px 0 var(--ink);
+}
+
+.modal-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.modal h2{
+  font-size:29px;
+}
+
+.modal-close{
+  width:34px;
+  height:34px;
+  border:2px solid var(--ink);
+  border-radius:7px;
+  background:var(--paper);
+  font-weight:800;
+}
+
+.form-group{
+  margin-bottom:13px;
+}
+
+.form-group label{
+  display:block;
+  margin-bottom:6px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+
+.form-group input{
+  width:100%;
+  padding:11px 12px;
+  border:2.5px solid var(--ink);
+  border-radius:8px;
+  outline:none;
+  background:var(--paper);
+}
+
+.modal-button{
+  width:100%;
+  margin-top:7px;
+  padding:12px;
+  color:#fff;
+  background:var(--red);
+  border:2.5px solid var(--ink);
+  border-radius:9px;
+  box-shadow:3px 3px 0 var(--ink);
+  font-weight:800;
+}
+
+/* =========================
+   AD MODAL
+========================= */
+
+.ad-modal-desc{
+  margin-bottom:16px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+  font-weight:600;
+}
+
+.ad-modal-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  padding:22px 0;
+  margin-bottom:14px;
+  background:var(--ink);
+  border:2.5px solid var(--ink);
+  border-radius:10px;
+}
+
+.ad-modal-timer{
+  color:#fff;
+  font-family:"Bangers",cursive;
+  font-size:46px;
+  line-height:1;
+}
+
+.ad-modal-box span{
+  color:#bbb;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+
+.ad-modal-count{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  text-align:center;
+}
+
+.modal-close[disabled]{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+/* =========================
+   SERVER
+========================= */
+
+.server{
+  position:fixed;
+  right:16px;
+  bottom:88px;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 12px;
+  background:var(--panel);
+  border:2.5px solid var(--ink);
+  border-radius:100px;
+  box-shadow:3px 3px 0 var(--ink);
+  font-size:11px;
+  font-weight:800;
+}
+
+.server-dot{
+  width:9px;
+  height:9px;
+  border:1.5px solid var(--ink);
+  border-radius:50%;
+  background:var(--yellow);
+}
+
+.server-dot.online{
+  background:var(--green);
+}
+
+.server-dot.offline{
+  background:var(--red);
+}
+
+/* =========================
+   BOTTOM NAV
+========================= */
+
+.bottom-nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:90;
+  display:flex;
+  height:76px;
+  background:var(--panel);
+  border-top:var(--border);
+}
+
+.bottom-btn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  color:var(--muted);
+  background:transparent;
+  font-size:10px;
+  font-weight:800;
+}
+
+.bottom-btn svg{
+  width:20px;
+  height:20px;
+}
+
+.bottom-btn.active{
+  color:var(--red);
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:100px;
+  z-index:300;
+  max-width:90%;
+  padding:11px 16px;
+  color:#fff;
+  background:var(--ink);
+  border:2px solid var(--ink);
+  border-radius:9px;
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+  font-size:12px;
+  font-weight:700;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:800px){
+
+  .header{
+    padding:10px 15px;
+    gap:9px;
+    flex-wrap:wrap;
+  }
+
+  .logo{
+    font-size:27px;
+  }
+
+  .logo-mark{
+    width:25px;
+    height:25px;
+  }
+
+  .header-search{
+    order:5;
+    flex-basis:100%;
+    max-width:none;
+  }
+
+  .hero{
+    padding:48px 18px 45px;
+  }
+
+  .section{
+    padding:28px 18px 5px;
+  }
+
+  .page-head{
+    padding:34px 18px 18px;
+  }
+
+  .page-head h1{
+    font-size:39px;
+  }
+
+  .filters{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    padding:15px 18px 80px;
+  }
+
+  .anime-card{
+    width:auto;
+    min-width:0;
+  }
+
+  .poster{
+    height:230px;
+  }
+
+  .detail-hero{
+    flex-direction:column;
+    align-items:flex-start;
+    padding:100px 18px 30px;
+  }
+
+  .back-button{
+    top:78px;
+    left:18px;
+  }
+
+  .detail-content{
+    grid-template-columns:1fr;
+    padding:30px 18px 80px;
+  }
+
+  .watch{
+    padding:25px 18px 80px;
+  }
+
+  .history-list,
+  .profile-wrap{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .dev-wrap,
+  .support-wrap{
+    padding-left:18px;
+    padding-right:18px;
+  }
+
+  .dev-grid,
+  .social-list{
+    grid-template-columns:1fr;
+  }
+
+  .dev-card{
+    padding:24px;
+  }
+
+  .dev-card h1{
+    font-size:45px;
+  }
+
+  .server{
+    bottom:84px;
+    right:10px;
+  }
+}
+
+@media(max-width:430px){
+
+  .anime-card{
+    flex-basis:160px;
+  }
+
+  .poster{
+    height:215px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .card-name{
+    font-size:12px;
+  }
+
+  .key-top{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     OFFLINE BANNER
+===================================================== -->
+
+<div class="offline-banner" id="offlineBanner">
+  Server web ini sedang mati. Anda bisa kembali nanti.
+</div>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="header">
+
+  <div class="logo" onclick="go('home')">
+    <span class="logo-mark"></span>
+    <span class="logo-anime">Anime</span><span class="logo-otaku">Otaku</span>
+  </div>
+
+  <div class="header-search">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.5">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m20 20-4-4"></path>
+    </svg>
+    <input id="searchInput" placeholder="Cari judul anime...">
+  </div>
+
+  <button class="header-account" onclick="openAccount()" title="Akun">
+    Z
+  </button>
+
+  <button class="menu-button" onclick="openMenu()" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+</header>
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-top">
+    <div class="sidebar-title">MENU</div>
+
+    <button class="close-menu" onclick="closeMenu()">×</button>
+  </div>
+
+  <nav class="menu-list">
+
+    <button class="menu-item" onclick="go('home');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <path d="m3 10 9-7 9 7"></path>
+          <path d="M5 9v11h14V9"></path>
+        </svg>
+      </span>
+      HOME
+    </button>
+
+    <button class="menu-item" onclick="go('search');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-4-4"></path>
+        </svg>
+      </span>
+      SEARCH
+    </button>
+
+    <button class="menu-item" onclick="go('history');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 7v5l3 2"></path>
+        </svg>
+      </span>
+      HISTORY
+    </button>
+
+    <button class="menu-item" onclick="go('saweria');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <path d="M20 7H4v13h16V7Z"></path>
+          <path d="M8 7V5h8v2"></path>
+          <path d="M8 11h8M8 15h5"></path>
+        </svg>
+      </span>
+      SAWERIA
+    </button>
+
+    <button class="menu-item" onclick="go('development');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <path d="m8 9-4 3 4 3"></path>
+          <path d="m16 9 4 3-4 3"></path>
+          <path d="m14 5-4 14"></path>
+        </svg>
+      </span>
+      DEVELOPMENT
+    </button>
+
+    <button class="menu-item" onclick="go('social');closeMenu()">
+      <span class="menu-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <circle cx="18" cy="5" r="2"></circle>
+          <circle cx="6" cy="12" r="2"></circle>
+          <circle cx="18" cy="19" r="2"></circle>
+          <path d="m8 11 8-5M8 13l8 5"></path>
+        </svg>
+      </span>
+      MEDIA SOSIAL
+    </button>
+
+  </nav>
+
+</aside>
+
+<!-- =====================================================
+     HOME
+===================================================== -->
+
+<main>
+
+<section class="view active" id="view-home">
+
+  <section class="hero">
+
+    <div class="hero-content">
+
+      <span class="eyebrow">UPDATE ANIME TIAP HARI</span>
+
+      <h1>
+        NONTON ANIME<br>
+        <span>SEMAKIN GAMPANG.</span>
+      </h1>
+
+      <p>
+        Temukan anime favoritmu, cek episode terbaru,
+        simpan riwayat tontonan, dan lanjutkan perjalananmu
+        bersama AnimeOtaku.
+      </p>
+
+      <div class="hero-buttons">
+        <button class="btn btn-red" onclick="go('search')">
+          Jelajahi Anime
+        </button>
+
+        <button class="btn btn-white" onclick="go('history')">
+          Lihat Riwayat
+        </button>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- UPDATE -->
+
+  <section class="section">
+
+    <div class="section-head">
+      <h2 class="section-title">Update Anime Hari Ini</h2>
+      <button class="section-link" onclick="go('search')">
+        Lihat semua
+      </button>
+    </div>
+
+    <div class="card-row" id="todayRow"></div>
+
+  </section>
+
+
+  <!-- POPULER -->
+
+  <section class="section">
+
+    <div class="section-head">
+      <h2 class="section-title">Anime Populer</h2>
+      <button class="section-link" onclick="go('search')">
+        Jelajahi
+      </button>
+    </div>
+
+    <div class="card-row" id="popularRow"></div>
+
+  </section>
+
+
+  <!-- TERBARU -->
+
+  <section class="section">
+
+    <div class="section-head">
+      <h2 class="section-title">Anime Terbaru</h2>
+    </div>
+
+    <div class="card-row" id="latestRow"></div>
+
+  </section>
+
+
+  <!-- INFO KUNCI -->
+
+  <section class="section">
+
+    <div class="key-panel">
+
+      <div class="key-top">
+
+        <div>
+          <div class="key-title">Sistem Kunci</div>
+
+          <p>
+            Gunakan kunci untuk membuka episode tertentu.
+            Selesaikan iklan reward resmi untuk mendapatkan kunci.
+          </p>
+        </div>
+
+        <div class="key-count" id="homeKeyCount">
+          0 KUNCI
+        </div>
+
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="homeAdProgress" style="width:0"></div>
+      </div>
+
+      <button class="reward-btn" onclick="openAdModal()">
+        Dapatkan Kunci
+      </button>
+
+    </div>
+
+  </section>
+
+</section>
+
+
+<!-- =====================================================
+     SEARCH
+===================================================== -->
+
+<section class="view" id="view-search">
+
+  <div class="page-head">
+    <h1>SEARCH ANIME</h1>
+    <p>Cari anime berdasarkan judul.</p>
+  </div>
+
+  <div class="filters">
+
+    <button class="filter active" onclick="filterAnime('all',this)">
+      Semua
+    </button>
+
+    <button class="filter" onclick="filterAnime('Aksi',this)">
+      Aksi
+    </button>
+
+    <button class="filter" onclick="filterAnime('Fantasi',this)">
+      Fantasi
+    </button>
+
+    <button class="filter" onclick="filterAnime('Drama',this)">
+      Drama
+    </button>
+
+    <button class="filter" onclick="filterAnime('Komedi',this)">
+      Komedi
+    </button>
+
+    <button class="filter" onclick="filterAnime('Misteri',this)">
+      Misteri
+    </button>
+
+  </div>
+
+  <div class="grid" id="searchGrid"></div>
+
+</section>
+
+
+<!-- =====================================================
+     DETAIL
+===================================================== -->
+
+<section class="view" id="view-detail">
+
+  <div class="detail-hero">
+
+    <button class="back-button" onclick="go('home')">
+      ← Kembali
+    </button>
+
+    <div class="detail-poster" id="detailPoster">
+      <span id="detailPosterTitle"></span>
+    </div>
+
+    <div class="detail-info">
+
+      <span class="eyebrow">DETAIL ANIME</span>
+
+      <h1 id="detailTitle">Bayangan di Ujung Senja</h1>
+
+      <div class="tags" id="detailTags"></div>
+
+      <p id="detailSynopsis"></p>
+
+    </div>
+
+  </div>
+
+
+  <div class="detail-content">
+
+    <div>
+
+      <h2 class="episode-title">Daftar Episode</h2>
+
+      <div class="episodes" id="episodeList"></div>
+
+    </div>
+
+
+    <aside class="side-box">
+
+      <h3>Informasi</h3>
+
+      <div class="stat">
+        <span>Rating</span>
+        <span id="detailRating">8.6</span>
+      </div>
+
+      <div class="stat">
+        <span>Episode</span>
+        <span id="detailEps">24</span>
+      </div>
+
+      <div class="stat">
+        <span>Status</span>
+        <span id="detailStatus">Tayang</span>
+      </div>
+
+      <div class="stat">
+        <span>Akses</span>
+        <span>Gratis</span>
+      </div>
+
+    </aside>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     WATCH
+===================================================== -->
+
+<section class="view" id="view-watch">
+
+  <div class="watch">
+
+    <div class="video-box" id="videoBox">
+
+      <video
+        id="playerVideo"
+        class="player-video"
+        playsinline
+        preload="metadata"
+      ></video>
+
+      <div class="video-empty" id="videoEmpty">
+
+        <div class="play-badge">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+        </div>
+
+        <strong id="watchTitle">
+          AnimeOtaku Player
+        </strong>
+
+        <p>
+          Video source akan dihubungkan melalui backend.
+        </p>
+
+      </div>
+
+      <div class="player-controls" id="playerControls">
+
+        <div class="player-seek">
+          <input
+            type="range"
+            id="playerSeek"
+            min="0"
+            max="100"
+            value="0"
+            step="0.1"
+            oninput="onSeekInput(this.value)"
+          >
+        </div>
+
+        <div class="player-row">
+
+          <div class="player-left">
+
+            <button class="player-btn" id="btnPlay" onclick="togglePlay()" aria-label="Play / Pause">
+              <svg id="iconPlay" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"></path>
+              </svg>
+              <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                <path d="M7 5h4v14H7zM13 5h4v14h-4z"></path>
+              </svg>
+            </button>
+
+            <button class="player-btn" onclick="seekBy(-10)" aria-label="Mundur 10 detik">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                <path d="M3 4v5h5"></path>
+              </svg>
+              <span>10</span>
+            </button>
+
+            <button class="player-btn" onclick="seekBy(10)" aria-label="Maju 10 detik">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M21 12a9 9 0 1 1-3-6.7"></path>
+                <path d="M21 4v5h-5"></path>
+              </svg>
+              <span>10</span>
+            </button>
+
+            <div class="player-volume">
+
+              <button class="player-btn" id="btnMute" onclick="toggleMute()" aria-label="Bisukan suara">
+                <svg id="iconVolume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M5 9v6h4l5 4V5L9 9H5z"></path>
+                  <path d="M16 8.5a4.5 4.5 0 0 1 0 7"></path>
+                </svg>
+                <svg id="iconMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none">
+                  <path d="M5 9v6h4l5 4V5L9 9H5z"></path>
+                  <path d="m16 9 5 6M21 9l-5 6"></path>
+                </svg>
+              </button>
+
+              <input
+                type="range"
+                id="playerVolume"
+                min="0"
+                max="1"
+                step="0.05"
+                value="1"
+                oninput="setVolume(this.value)"
+              >
+
+            </div>
+
+            <span class="player-time" id="playerTime">00:00 / 00:00</span>
+
+          </div>
+
+          <div class="player-right">
+
+            <button class="player-btn" onclick="changeEpisode(-1)" aria-label="Episode sebelumnya">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M19 20 9 12l10-8v16zM5 19V5"></path>
+              </svg>
+            </button>
+
+            <button class="player-btn" onclick="changeEpisode(1)" aria-label="Episode berikutnya">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M5 4l10 8-10 8V4zM19 5v14"></path>
+              </svg>
+            </button>
+
+            <button class="player-btn" id="btnFullscreen" onclick="toggleFullscreen()" aria-label="Layar penuh">
+              <svg id="iconFsEnter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"></path>
+              </svg>
+              <svg id="iconFsExit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="display:none">
+                <path d="M9 3v4a2 2 0 0 1-2 2H3M21 9h-4a2 2 0 0 1-2-2V3M3 15h4a2 2 0 0 1 2 2v4M15 21v-4a2 2 0 0 1 2-2h4"></path>
+              </svg>
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="watch-info">
+
+      <h1 id="watchAnime">
+        Bayangan di Ujung Senja
+      </h1>
+
+      <p id="watchEpisode">
+        Episode 1
+      </p>
+
+    </div>
+
+
+    <div class="key-panel">
+
+      <div class="key-top">
+
+        <div>
+          <div class="key-title">Kunci Kamu</div>
+
+          <p>
+            Kunci divalidasi oleh server.
+          </p>
+        </div>
+
+        <div class="key-count" id="watchKeys">
+          0 KUNCI
+        </div>
+
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" id="watchAdProgress" style="width:0"></div>
+      </div>
+
+      <button class="reward-btn" onclick="openAdModal()">
+        Dapatkan Kunci
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     HISTORY
+===================================================== -->
+
+<section class="view" id="view-history">
+
+  <div class="page-head">
+    <h1>HISTORY</h1>
+    <p>Anime yang terakhir kamu tonton.</p>
+  </div>
+
+  <div class="history-list" id="historyList">
+
+    <div class="history-item">
+
+      <div class="history-poster"></div>
+
+      <div class="history-info">
+
+        <h3>Belum ada riwayat</h3>
+
+        <p>
+          Anime yang kamu tonton akan muncul di sini.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE
+===================================================== -->
+
+<section class="view" id="view-profile">
+
+  <div class="page-head">
+    <h1>PROFILE</h1>
+    <p>Kelola informasi akunmu.</p>
+  </div>
+
+  <div class="profile-wrap">
+
+    <div class="profile-card">
+
+      <div class="profile-avatar">
+        Z
+      </div>
+
+      <div class="profile-name" id="profileName">
+        Guest
+      </div>
+
+      <div class="profile-role">
+        USER
+      </div>
+
+      <div class="profile-stats">
+
+        <div class="profile-stat">
+          <strong id="profileKeys">0</strong>
+          <span>KUNCI</span>
+        </div>
+
+        <div class="profile-stat">
+          <strong id="profileUnlocked">0</strong>
+          <span>UNLOCKED</span>
+        </div>
+
+      </div>
+
+      <button class="btn btn-red"
+              style="width:100%;margin-top:18px"
+              onclick="openAccount()">
+        Login / Daftar
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     DEVELOPMENT
+===================================================== -->
+
+<section class="view" id="view-development">
+
+  <div class="dev-wrap">
+
+    <div class="dev-card">
+
+      <span class="dev-label">
+        DEVELOPMENT
+      </span>
+
+      <h1>ANIMEOTAKU</h1>
+
+      <div class="dev-grid">
+
+        <div class="dev-item">
+          <small>Created By</small>
+          <strong>Zazz</strong>
+        </div>
+
+        <div class="dev-item">
+          <small>Role</small>
+          <strong>Developer / Owner</strong>
+        </div>
+
+        <div class="dev-item">
+          <small>Project</small>
+          <strong>AnimeOtaku</strong>
+        </div>
+
+        <div class="dev-item">
+          <small>Technology</small>
+          <strong>Frontend Web + JavaScript Backend</strong>
+        </div>
+
+        <div class="dev-item">
+          <small>Developer Level</small>
+          <strong>99999999</strong>
+        </div>
+
+        <div class="dev-item">
+          <small>Project Status</small>
+          <strong>Development</strong>
+        </div>
+
+      </div>
+
+      <p class="dev-description">
+        AnimeOtaku dikembangkan dan dikelola oleh Zazz.
+        Project ini dibuat untuk menghadirkan pengalaman katalog
+        dan streaming anime dengan sistem backend yang terintegrasi.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     SAWERIA
+===================================================== -->
+
+<section class="view" id="view-saweria">
+
+  <div class="support-wrap">
+
+    <div class="support-card">
+
+      <span class="eyebrow">SUPPORT DEVELOPMENT</span>
+
+      <h1>DUKUNG ANIMEOTAKU</h1>
+
+      <p>
+        Dukungan kamu membantu pengembangan AnimeOtaku,
+        penyimpanan data, server, HDD tambahan, RAM,
+        dan biaya operasional project.
+      </p>
+
+      <button class="btn btn-red"
+              onclick="openExternal(CONFIG.SAWERIA_URL)">
+        Buka Saweria
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     SOCIAL
+===================================================== -->
+
+<section class="view" id="view-social">
+
+  <div class="support-wrap">
+
+    <div class="support-card">
+
+      <span class="eyebrow">OFFICIAL LINKS</span>
+
+      <h1>MEDIA SOSIAL</h1>
+
+      <p>
+        Ikuti perkembangan AnimeOtaku dan update terbaru
+        dari developer.
+      </p>
+
+      <div class="social-list">
+
+        <a class="social" id="socialTiktok" target="_blank">
+          TikTok
+        </a>
+
+        <a class="social" id="socialYoutube" target="_blank">
+          YouTube
+        </a>
+
+        <a class="social" id="socialWhatsapp" target="_blank">
+          WhatsApp
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- =====================================================
+     BOTTOM NAV
+===================================================== -->
+
+<nav class="bottom-nav">
+
+  <button class="bottom-btn active" data-nav="home" onclick="go('home')">
+    <svg viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.4">
+      <path d="m3 10 9-7 9 7"></path>
+      <path d="M5 9v11h14V9"></path>
+    </svg>
+    <span>Beranda</span>
+  </button>
+
+  <button class="bottom-btn" data-nav="search" onclick="go('search')">
+    <svg viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.4">
+      <circle cx="11" cy="11" r="7"></circle>
+      <path d="m20 20-4-4"></path>
+    </svg>
+    <span>Search</span>
+  </button>
+
+  <button class="bottom-btn" data-nav="history" onclick="go('history')">
+    <svg viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.4">
+      <circle cx="12" cy="12" r="9"></circle>
+      <path d="M12 7v5l3 2"></path>
+    </svg>
+    <span>History</span>
+  </button>
+
+  <button class="bottom-btn" data-nav="profile" onclick="go('profile')">
+    <svg viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.4">
+      <circle cx="12" cy="8" r="4"></circle>
+      <path d="M4 21c1.5-5 4-7 8-7s6.5 2 8 7"></path>
+    </svg>
+    <span>Profil</span>
+  </button>
+
+</nav>
+
+
+<!-- SERVER STATUS -->
+
+<div class="server">
+  <span class="server-dot" id="serverDot"></span>
+  <span id="serverText">API CHECK</span>
+</div>
+
+
+<!-- ACCOUNT MODAL -->
+
+<div class="modal-bg" id="accountModal">
+
+  <div class="modal">
+
+    <div class="modal-head">
+
+      <h2>ACCOUNT</h2>
+
+      <button class="modal-close" onclick="closeAccount()">
+        ×
+      </button>
+
+    </div>
+
+    <div class="form-group">
+
+      <label>USERNAME</label>
+
+      <input
+        id="loginUsername"
+        placeholder="Username"
+        autocomplete="username"
+      >
+
+    </div>
+
+    <div class="form-group">
+
+      <label>PASSWORD</label>
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+    </div>
+
+    <button class="modal-button" onclick="demoLogin()">
+      LOGIN
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- AD REWARD MODAL -->
+
+<div class="modal-bg" id="adModal">
+
+  <div class="modal ad-modal">
+
+    <div class="modal-head">
+
+      <h2>IKLAN REWARD</h2>
+
+      <button class="modal-close" id="adModalClose" onclick="closeAdModal()">
+        ×
+      </button>
+
+    </div>
+
+    <p class="ad-modal-desc">
+      Selesaikan iklan sampai habis untuk mendapatkan 1 kunci.
+      Kunci hanya diberikan setelah iklan benar-benar selesai.
+    </p>
+
+    <div class="ad-modal-box">
+      <div class="ad-modal-timer" id="adTimer">5</div>
+      <span>DETIK TERSISA</span>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar" id="adModalProgress" style="width:0"></div>
+    </div>
+
+    <p class="ad-modal-count" id="adModalCount">0 / 3 IKLAN SELESAI</p>
+
+  </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const CONFIG = {
+
+  API_URL:
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : "",
+
+  SAWERIA_URL:
+    "https://saweria.co/Zazzsaweria",
+
+  TIKTOK_URL:
+    "GANTI_DENGAN_LINK_TIKTOK",
+
+  YOUTUBE_URL:
+    "https://youtube.com/@zazzscript?si=NjZ8fYADyC1vjaFj",
+
+  WHATSAPP_URL:
+    "https://wa.me/zazz771"
+
+};
+
+
+/* =========================================================
+   SAMPLE DATA UI
+   NANTI DIGANTI DATA API JAVASCRIPT
+========================================================= */
+
+const animeData = [
+
+  {
+    id:"senja",
+    title:"Bayangan di Ujung Senja",
+    genres:["Aksi","Fantasi"],
+    rating:"8.6",
+    eps:24,
+    status:"Tayang",
+    color:"linear-gradient(145deg,#3a2e5c,#8b7fff)",
+    synopsis:
+      "Seorang penjaga gerbang dunia harus memilih antara melindungi kampung halamannya atau dunia bayangan yang selama ini ia jaga."
+  },
+
+  {
+    id:"ombak",
+    title:"Nyanyian Ombak Utara",
+    genres:["Drama","Slice of Life"],
+    rating:"9.1",
+    eps:12,
+    status:"Tamat",
+    color:"linear-gradient(145deg,#5c2e3a,#f5a623)",
+    synopsis:
+      "Kisah tiga nelayan muda di sebuah desa pesisir yang perlahan belajar arti kehilangan dan harapan."
+  },
+
+  {
+    id:"awan",
+    title:"Sekolah di Tepi Awan",
+    genres:["Komedi","Sekolah"],
+    rating:"8.2",
+    eps:26,
+    status:"Tayang",
+    color:"linear-gradient(145deg,#1f3a5c,#4ade80)",
+    synopsis:
+      "Sekolah mengambang di atas awan ini punya aturan aneh dan murid-murid yang lebih aneh lagi."
+  },
+
+  {
+    id:"kereta",
+    title:"Kereta Malam Terakhir",
+    genres:["Misteri","Supernatural"],
+    rating:"8.9",
+    eps:13,
+    status:"Tamat",
+    color:"linear-gradient(145deg,#2e3a5c,#8b7fff)",
+    synopsis:
+      "Setiap tengah malam, kereta misterius berhenti di stasiun yang sudah lama ditutup."
+  },
+
+  {
+    id:"pelaut",
+    title:"Pelaut dari Negeri Batu",
+    genres:["Petualangan","Fantasi"],
+    rating:"8.4",
+    eps:22,
+    status:"Tayang",
+    color:"linear-gradient(145deg,#5c3a1f,#f5a623)",
+    synopsis:
+      "Seorang pelaut muda berlayar mencari negeri legenda yang katanya terbuat dari batu mengambang."
+  },
+
+  {
+    id:"salju",
+    title:"Api di Bawah Salju",
+    genres:["Aksi","Drama"],
+    rating:"9.3",
+    eps:24,
+    status:"Tayang",
+    color:"linear-gradient(145deg,#3a5c4a,#4ade80)",
+    synopsis:
+      "Di negeri yang membeku sepanjang tahun, seorang prajurit pembelot membawa api terakhir."
+  }
+
+];
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function go(page){
+
+  document.querySelectorAll(".view")
+    .forEach(v=>v.classList.remove("active"));
+
+  const target =
+    document.getElementById("view-"+page);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll(".bottom-btn")
+    .forEach(btn=>{
+      btn.classList.toggle(
+        "active",
+        btn.dataset.nav===page
+      );
+    });
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+function openMenu(){
+
+  document
+    .getElementById("sidebar")
+    .classList.add("active");
+
+  document
+    .getElementById("overlay")
+    .classList.add("active");
+
+  document.body.classList.add("no-scroll");
+
+}
+
+function closeMenu(){
+
+  document
+    .getElementById("sidebar")
+    .classList.remove("active");
+
+  document
+    .getElementById("overlay")
+    .classList.remove("active");
+
+  document.body.classList.remove("no-scroll");
+
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+let dataConnected=false;
+
+function createCard(anime,index=0){
+
+  const card =
+    document.createElement("article");
+
+  card.className="anime-card";
+
+  card.onclick=()=>{
+    openDetail(anime.id);
+  };
+
+  if(!dataConnected){
+
+    card.innerHTML=`
+
+      <div class="poster poster-unknown">
+        <span class="poster-title">????</span>
+      </div>
+
+      <div class="card-info">
+
+        <div class="card-name">????</div>
+
+        <div class="card-meta">
+          <span>? ★</span>
+          <span>? EPS</span>
+        </div>
+
+      </div>
+
+    `;
+
+    return card;
+
+  }
+
+  card.innerHTML=`
+
+    <div
+      class="poster"
+      style="background:${anime.color}"
+    >
+
+      ${
+        index < 2
+        ? `<span class="badge new">NEW</span>`
+        : ""
+      }
+
+      <span class="poster-title">
+        ${escapeHTML(anime.title)}
+      </span>
+
+    </div>
+
+    <div class="card-info">
+
+      <div class="card-name">
+        ${escapeHTML(anime.title)}
+      </div>
+
+      <div class="card-meta">
+        <span>${anime.rating} ★</span>
+        <span>${anime.eps} EPS</span>
+      </div>
+
+    </div>
+
+  `;
+
+  return card;
+
+}
+
+
+/* =========================================================
+   HOME DATA
+========================================================= */
+
+function renderHome(){
+
+  const today =
+    document.getElementById("todayRow");
+
+  const popular =
+    document.getElementById("popularRow");
+
+  const latest =
+    document.getElementById("latestRow");
+
+  today.innerHTML="";
+  popular.innerHTML="";
+  latest.innerHTML="";
+
+  animeData.forEach((anime,i)=>{
+
+    today.appendChild(
+      createCard(anime,i)
+    );
+
+  });
+
+  [...animeData]
+    .sort((a,b)=>Number(b.rating)-Number(a.rating))
+    .forEach((anime,i)=>{
+      popular.appendChild(
+        createCard(anime,i)
+      );
+    });
+
+  [...animeData]
+    .reverse()
+    .forEach((anime,i)=>{
+      latest.appendChild(
+        createCard(anime,i)
+      );
+    });
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+let activeFilter="all";
+
+function renderSearch(){
+
+  const grid =
+    document.getElementById("searchGrid");
+
+  const query =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const results =
+    animeData.filter(anime=>{
+
+      const matchSearch =
+        anime.title
+          .toLowerCase()
+          .includes(query);
+
+      const matchFilter =
+        activeFilter==="all" ||
+        anime.genres.some(
+          g=>g.toLowerCase()===activeFilter.toLowerCase()
+        );
+
+      return matchSearch && matchFilter;
+
+    });
+
+  grid.innerHTML="";
+
+  if(!results.length){
+
+    grid.innerHTML=`
+
+      <div class="empty"
+           style="grid-column:1/-1">
+
+        <h2>Anime Tidak Ditemukan</h2>
+
+        <p>
+          Coba gunakan kata kunci lain.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  results.forEach((anime,i)=>{
+
+    grid.appendChild(
+      createCard(anime,i)
+    );
+
+  });
+
+}
+
+function filterAnime(filter,button){
+
+  activeFilter=filter;
+
+  document
+    .querySelectorAll(".filter")
+    .forEach(b=>b.classList.remove("active"));
+
+  button.classList.add("active");
+
+  renderSearch();
+
+}
+
+
+/* =========================================================
+   SEARCH INPUT
+========================================================= */
+
+document
+  .getElementById("searchInput")
+  .addEventListener("input",()=>{
+
+    if(
+      !document
+        .getElementById("view-search")
+        .classList.contains("active")
+    ){
+      go("search");
+    }
+
+    renderSearch();
+
+  });
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+function openDetail(id){
+
+  const anime =
+    animeData.find(a=>a.id===id);
+
+  if(!anime)return;
+
+  const poster =
+    document.getElementById("detailPoster");
+
+  const list =
+    document.getElementById("episodeList");
+
+  const tags =
+    document.getElementById("detailTags");
+
+  tags.innerHTML="";
+  list.innerHTML="";
+
+  if(!dataConnected){
+
+    poster.classList.add("poster-unknown");
+    poster.style.background="";
+
+    document.getElementById("detailPosterTitle").textContent="????";
+    document.getElementById("detailTitle").textContent="????";
+    document.getElementById("detailSynopsis").textContent=
+      "Data anime belum tersedia. Menunggu koneksi ke server.";
+    document.getElementById("detailRating").textContent="?";
+    document.getElementById("detailEps").textContent="?";
+    document.getElementById("detailStatus").textContent="????";
+
+    const tag=document.createElement("span");
+    tag.className="tag";
+    tag.textContent="????";
+    tags.appendChild(tag);
+
+    list.innerHTML=`
+      <p style="
+        padding:14px;
+        color:var(--muted);
+        font-size:12px;
+        font-weight:600;
+      ">
+        Daftar episode belum tersedia dari server.
+      </p>
+    `;
+
+    go("detail");
+    return;
+
+  }
+
+  poster.classList.remove("poster-unknown");
+
+  poster.style.background=anime.color;
+
+  document
+    .getElementById("detailPosterTitle")
+    .textContent=anime.title;
+
+  document
+    .getElementById("detailTitle")
+    .textContent=anime.title;
+
+  document
+    .getElementById("detailSynopsis")
+    .textContent=anime.synopsis;
+
+  document
+    .getElementById("detailRating")
+    .textContent=anime.rating;
+
+  document
+    .getElementById("detailEps")
+    .textContent=anime.eps;
+
+  document
+    .getElementById("detailStatus")
+    .textContent=anime.status;
+
+  anime.genres.forEach(g=>{
+
+    const tag =
+      document.createElement("span");
+
+    tag.className="tag";
+    tag.textContent=g;
+
+    tags.appendChild(tag);
+
+  });
+
+  for(let i=1;i<=anime.eps;i++){
+
+    const unlocked =
+      i===1 ||
+      localStorage.getItem(
+        "unlocked_"+anime.id+"_"+i
+      )==="1";
+
+    const ep =
+      document.createElement("div");
+
+    ep.className="episode";
+
+    ep.innerHTML=`
+
+      <div class="episode-number">
+        ${String(i).padStart(2,"0")}
+      </div>
+
+      <div class="episode-name">
+        Episode ${i}
+      </div>
+
+      <button
+        class="episode-action ${unlocked?"unlocked":""}"
+        onclick="handleEpisode('${anime.id}',${i},event)"
+      >
+        ${unlocked?"TONTON":"1 KUNCI"}
+      </button>
+
+    `;
+
+    list.appendChild(ep);
+
+  }
+
+  go("detail");
+
+}
+
+
+/* =========================================================
+   KEY STATE
+   Saldo kunci lokal di localStorage. Saat backend JavaScript
+   tersambung, ganti sumber saldo ini ke GET /api/user dan
+   pastikan validasi saldo sepenuhnya dilakukan di server.
+========================================================= */
+
+function getKeys(){
+
+  return parseInt(
+    localStorage.getItem("animeotaku_keys")||"0",
+    10
+  );
+
+}
+
+function setKeys(value){
+
+  localStorage.setItem(
+    "animeotaku_keys",
+    String(Math.max(0,value))
+  );
+
+  updateKeyDisplays();
+
+}
+
+function countUnlockedEpisodes(){
+
+  let count=0;
+
+  for(let i=0;i<localStorage.length;i++){
+
+    const k=localStorage.key(i);
+
+    if(k && k.startsWith("unlocked_")){
+      count++;
+    }
+
+  }
+
+  return count;
+
+}
+
+function updateKeyDisplays(){
+
+  const keys=getKeys();
+  const label=keys+" KUNCI";
+
+  ["watchKeys","homeKeyCount"].forEach(id=>{
+
+    const el=document.getElementById(id);
+
+    if(el) el.textContent=label;
+
+  });
+
+  const profileKeys=
+    document.getElementById("profileKeys");
+
+  if(profileKeys) profileKeys.textContent=keys;
+
+  const profileUnlocked=
+    document.getElementById("profileUnlocked");
+
+  if(profileUnlocked){
+    profileUnlocked.textContent=countUnlockedEpisodes();
+  }
+
+}
+
+
+/* =========================================================
+   AD REWARD
+   Timer di frontend menahan reward sampai iklan selesai.
+   Saat backend + provider iklan resmi tersambung, ganti
+   logic di completeAdReward() dengan callback resmi provider
+   + validasi POST /api/ad-reward di server.
+========================================================= */
+
+const AD_DURATION=5;
+let adTimerHandle=null;
+let adSecondsLeft=AD_DURATION;
+let adRunning=false;
+
+function getAdProgress(){
+
+  return parseInt(
+    localStorage.getItem("animeotaku_ad_progress")||"0",
+    10
+  );
+
+}
+
+function setAdProgress(value){
+
+  const wrapped=value%3;
+
+  localStorage.setItem(
+    "animeotaku_ad_progress",
+    String(wrapped)
+  );
+
+  updateAdProgressDisplays(wrapped);
+
+}
+
+function updateAdProgressDisplays(progress){
+
+  const pct=(progress/3)*100+"%";
+
+  ["watchAdProgress","homeAdProgress","adModalProgress"]
+    .forEach(id=>{
+
+      const el=document.getElementById(id);
+
+      if(el) el.style.width=pct;
+
+    });
+
+  const countEl=
+    document.getElementById("adModalCount");
+
+  if(countEl){
+    countEl.textContent=progress+" / 3 IKLAN SELESAI";
+  }
+
+}
+
+function openAdModal(){
+
+  document
+    .getElementById("adModal")
+    .classList.add("active");
+
+  updateAdProgressDisplays(getAdProgress());
+
+  startAdCountdown();
+
+}
+
+function closeAdModal(){
+
+  if(adRunning)return;
+
+  document
+    .getElementById("adModal")
+    .classList.remove("active");
+
+  clearInterval(adTimerHandle);
+
+}
+
+function startAdCountdown(){
+
+  clearInterval(adTimerHandle);
+
+  adSecondsLeft=AD_DURATION;
+  adRunning=true;
+
+  const timerEl=
+    document.getElementById("adTimer");
+
+  const closeBtn=
+    document.getElementById("adModalClose");
+
+  timerEl.textContent=adSecondsLeft;
+  closeBtn.setAttribute("disabled","true");
+
+  adTimerHandle=setInterval(()=>{
+
+    adSecondsLeft--;
+
+    timerEl.textContent=
+      Math.max(adSecondsLeft,0);
+
+    if(adSecondsLeft<=0){
+
+      clearInterval(adTimerHandle);
+      adRunning=false;
+      closeBtn.removeAttribute("disabled");
+
+      completeAdReward();
+
+    }
+
+  },1000);
+
+}
+
+function completeAdReward(){
+
+  setKeys(getKeys()+1);
+  setAdProgress(getAdProgress()+1);
+
+  showToast("Iklan selesai. +1 kunci didapat!");
+
+}
+
+
+/* =========================================================
+   EPISODE
+========================================================= */
+
+function handleEpisode(id,episode,event){
+
+  if(event){
+    event.stopPropagation();
+  }
+
+  /*
+    NOTE: status unlock/kunci disimpan di localStorage.
+    Saat backend JavaScript tersambung, ganti dengan
+    pemanggilan POST /api/unlock-episode dan validasi
+    saldo kunci dilakukan sepenuhnya di server.
+  */
+
+  const unlockKey =
+    "unlocked_"+id+"_"+episode;
+
+  if(episode===1 || localStorage.getItem(unlockKey)==="1"){
+
+    openWatch(id,episode);
+    return;
+
+  }
+
+  if(getKeys()<1){
+
+    showToast(
+      "Kunci kamu habis. Tonton iklan dulu untuk dapat kunci."
+    );
+
+    openAdModal();
+    return;
+
+  }
+
+  setKeys(getKeys()-1);
+
+  localStorage.setItem(unlockKey,"1");
+
+  updateKeyDisplays();
+
+  showToast("1 kunci digunakan untuk membuka episode ini.");
+
+  openWatch(id,episode);
+
+}
+
+
+/* =========================================================
+   WATCH
+========================================================= */
+
+let currentAnimeId=null;
+let currentEpisode=1;
+
+function openWatch(id,episode){
+
+  const anime =
+    animeData.find(a=>a.id===id);
+
+  if(!anime)return;
+
+  currentAnimeId=id;
+  currentEpisode=episode;
+
+  document
+    .getElementById("watchTitle")
+    .textContent=anime.title;
+
+  document
+    .getElementById("watchAnime")
+    .textContent=anime.title;
+
+  document
+    .getElementById("watchEpisode")
+    .textContent=
+      "Episode "+episode;
+
+  loadPlayerSource(anime,episode);
+
+  addHistory(id,episode);
+
+  updateKeyDisplays();
+
+  go("watch");
+
+}
+
+
+/* =========================================================
+   PLAYER — SOURCE
+========================================================= */
+
+function loadPlayerSource(anime,episode){
+
+  const video =
+    document.getElementById("playerVideo");
+
+  const box =
+    document.getElementById("videoBox");
+
+  /*
+    Belum ada sumber video dari backend JavaScript.
+    Saat API sudah siap, isi anime.episodesData[episode].videoUrl
+    (atau field serupa dari response server) lalu set video.src
+    di sini. Jangan pernah menampilkan data video palsu.
+  */
+
+  const src =
+    anime.episodesData &&
+    anime.episodesData[episode] &&
+    anime.episodesData[episode].videoUrl;
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+
+  resetPlayerUI();
+
+  if(src){
+
+    video.src=src;
+    box.classList.add("has-source");
+
+  }else{
+
+    box.classList.remove("has-source");
+
+  }
+
+}
+
+function resetPlayerUI(){
+
+  document
+    .getElementById("iconPlay")
+    .style.display="";
+
+  document
+    .getElementById("iconPause")
+    .style.display="none";
+
+  document
+    .getElementById("playerSeek")
+    .value=0;
+
+  document
+    .getElementById("playerTime")
+    .textContent="00:00 / 00:00";
+
+}
+
+
+/* =========================================================
+   PLAYER — CONTROLS
+========================================================= */
+
+function getPlayerVideo(){
+  return document.getElementById("playerVideo");
+}
+
+function togglePlay(){
+
+  const video=getPlayerVideo();
+
+  if(!video.src){
+    showToast("Video source belum tersedia dari server.");
+    return;
+  }
+
+  if(video.paused){
+    video.play();
+  }else{
+    video.pause();
+  }
+
+}
+
+function seekBy(seconds){
+
+  const video=getPlayerVideo();
+
+  if(!video.src)return;
+
+  video.currentTime=
+    Math.min(
+      Math.max(video.currentTime+seconds,0),
+      video.duration||0
+    );
+
+}
+
+function onSeekInput(value){
+
+  const video=getPlayerVideo();
+
+  if(!video.duration)return;
+
+  video.currentTime=
+    (value/100)*video.duration;
+
+}
+
+function setVolume(value){
+
+  const video=getPlayerVideo();
+
+  video.volume=Number(value);
+  video.muted=Number(value)===0;
+
+  syncMuteIcon();
+
+}
+
+function toggleMute(){
+
+  const video=getPlayerVideo();
+
+  video.muted=!video.muted;
+
+  syncMuteIcon();
+
+}
+
+function syncMuteIcon(){
+
+  const video=getPlayerVideo();
+
+  document
+    .getElementById("iconVolume")
+    .style.display=video.muted?"none":"";
+
+  document
+    .getElementById("iconMute")
+    .style.display=video.muted?"":"none";
+
+}
+
+function toggleFullscreen(){
+
+  const box=
+    document.getElementById("videoBox");
+
+  const isFullscreen=
+    document.fullscreenElement ||
+    document.webkitFullscreenElement;
+
+  if(!isFullscreen){
+
+    if(box.requestFullscreen){
+      box.requestFullscreen();
+    }else if(box.webkitRequestFullscreen){
+      box.webkitRequestFullscreen();
+    }
+
+  }else{
+
+    if(document.exitFullscreen){
+      document.exitFullscreen();
+    }else if(document.webkitExitFullscreen){
+      document.webkitExitFullscreen();
+    }
+
+  }
+
+}
+
+function syncFullscreenIcon(){
+
+  const isFullscreen=
+    Boolean(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement
+    );
+
+  document
+    .getElementById("iconFsEnter")
+    .style.display=isFullscreen?"none":"";
+
+  document
+    .getElementById("iconFsExit")
+    .style.display=isFullscreen?"":"none";
+
+}
+
+document.addEventListener("fullscreenchange",syncFullscreenIcon);
+document.addEventListener("webkitfullscreenchange",syncFullscreenIcon);
+
+function changeEpisode(direction){
+
+  if(!currentAnimeId)return;
+
+  const anime=
+    animeData.find(a=>a.id===currentAnimeId);
+
+  if(!anime)return;
+
+  const target=currentEpisode+direction;
+
+  if(target<1 || target>anime.eps){
+    showToast(
+      direction>0
+        ? "Sudah episode terakhir."
+        : "Sudah episode pertama."
+    );
+    return;
+  }
+
+  handleEpisode(anime.id,target);
+
+}
+
+function formatTime(seconds){
+
+  if(!isFinite(seconds) || seconds<0){
+    seconds=0;
+  }
+
+  const m=
+    Math.floor(seconds/60)
+      .toString()
+      .padStart(2,"0");
+
+  const s=
+    Math.floor(seconds%60)
+      .toString()
+      .padStart(2,"0");
+
+  return m+":"+s;
+
+}
+
+(function bindPlayerEvents(){
+
+  const video=document.getElementById("playerVideo");
+
+  video.addEventListener("play",()=>{
+    document.getElementById("iconPlay").style.display="none";
+    document.getElementById("iconPause").style.display="";
+  });
+
+  video.addEventListener("pause",()=>{
+    document.getElementById("iconPlay").style.display="";
+    document.getElementById("iconPause").style.display="none";
+  });
+
+  video.addEventListener("timeupdate",()=>{
+
+    if(!video.duration)return;
+
+    document.getElementById("playerSeek").value=
+      (video.currentTime/video.duration)*100;
+
+    document.getElementById("playerTime").textContent=
+      formatTime(video.currentTime)+" / "+formatTime(video.duration);
+
+  });
+
+  video.addEventListener("ended",()=>{
+
+    resetPlayerUI();
+
+    showToast("Episode selesai.");
+
+  });
+
+})();
+
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+function addHistory(id,episode){
+
+  const anime =
+    animeData.find(a=>a.id===id);
+
+  if(!anime)return;
+
+  const history =
+    JSON.parse(
+      localStorage.getItem("animeotaku_history") || "[]"
+    );
+
+  history.unshift({
+
+    id,
+    episode,
+    time:new Date().toLocaleString("id-ID")
+
+  });
+
+  const unique =
+    history.filter(
+      (item,index,self)=>
+        index===
+        self.findIndex(
+          x=>
+            x.id===item.id &&
+            x.episode===item.episode
+        )
+    );
+
+  localStorage.setItem(
+    "animeotaku_history",
+    JSON.stringify(unique.slice(0,20))
+  );
+
+  renderHistory();
+
+}
+
+function renderHistory(){
+
+  const list =
+    document.getElementById("historyList");
+
+  const history =
+    JSON.parse(
+      localStorage.getItem("animeotaku_history") || "[]"
+    );
+
+  if(!history.length){
+
+    list.innerHTML=`
+
+      <div class="history-item">
+
+        <div class="history-poster"></div>
+
+        <div class="history-info">
+
+          <h3>Belum ada riwayat</h3>
+
+          <p>
+            Anime yang kamu tonton akan muncul di sini.
+          </p>
+
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  list.innerHTML="";
+
+  history.forEach(item=>{
+
+    const anime =
+      animeData.find(
+        a=>a.id===item.id
+      );
+
+    if(!anime)return;
+
+    const el =
+      document.createElement("div");
+
+    el.className="history-item";
+
+    el.onclick=()=>{
+      openDetail(anime.id);
+    };
+
+    el.innerHTML=`
+
+      <div
+        class="history-poster"
+        style="background:${anime.color}"
+      ></div>
+
+      <div class="history-info">
+
+        <h3>${escapeHTML(anime.title)}</h3>
+
+        <p>
+          Episode ${item.episode} · ${item.time}
+        </p>
+
+      </div>
+
+    `;
+
+    list.appendChild(el);
+
+  });
+
+}
+
+
+/* =========================================================
+   ACCOUNT
+========================================================= */
+
+function openAccount(){
+
+  document
+    .getElementById("accountModal")
+    .classList.add("active");
+
+}
+
+function closeAccount(){
+
+  document
+    .getElementById("accountModal")
+    .classList.remove("active");
+
+}
+
+function demoLogin(){
+
+  const username =
+    document
+      .getElementById("loginUsername")
+      .value
+      .trim();
+
+  if(!username){
+
+    showToast("Username belum diisi.");
+
+    return;
+
+  }
+
+  document
+    .getElementById("profileName")
+    .textContent=username;
+
+  closeAccount();
+
+  showToast("Berhasil masuk sebagai "+username+".");
+
+}
+
+
+/* =========================================================
+   SERVER STATUS
+========================================================= */
+
+function setOfflineBanner(show){
+
+  document
+    .getElementById("offlineBanner")
+    .classList.toggle("show",show);
+
+}
+
+async function checkServer(){
+
+  const dot =
+    document.getElementById("serverDot");
+
+  const text =
+    document.getElementById("serverText");
+
+  if(!CONFIG.API_URL){
+
+    dot.className="server-dot offline";
+    text.textContent="API BELUM DIKONFIGURASI";
+
+    setOfflineBanner(true);
+
+    return;
+
+  }
+
+  try{
+
+    const response =
+      await fetch(
+        CONFIG.API_URL+"/api/anime",
+        {
+          method:"GET",
+          signal:AbortSignal.timeout(3000)
+        }
+      );
+
+    if(response.ok){
+
+      dot.className=
+        "server-dot online";
+
+      text.textContent=
+        "SERVER ONLINE";
+
+      setOfflineBanner(false);
+
+    }else{
+
+      dot.className=
+        "server-dot offline";
+
+      text.textContent=
+        "SERVER ERROR";
+
+      setOfflineBanner(true);
+
+      if(dataConnected){
+        dataConnected=false;
+        renderHome();
+        renderSearch();
+      }
+
+    }
+
+  }catch(error){
+
+    dot.className=
+      "server-dot offline";
+
+    text.textContent=
+      "SERVER OFFLINE";
+
+    setOfflineBanner(true);
+
+    if(dataConnected){
+      dataConnected=false;
+      renderHome();
+      renderSearch();
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   API READY
+========================================================= */
+
+async function loadAnimeFromAPI(){
+
+  if(!CONFIG.API_URL){
+    return;
+  }
+
+  try{
+
+    const response =
+      await fetch(
+        CONFIG.API_URL+"/api/anime"
+      );
+
+    if(!response.ok){
+      throw new Error("API error");
+    }
+
+    const data =
+      await response.json();
+
+    if(!Array.isArray(data)){
+      return;
+    }
+
+    /*
+      Backend JavaScript nantinya menjadi sumber data utama.
+      Mapping dilakukan di sini agar UI tidak perlu diubah.
+    */
+
+    const mapped =
+      data.map(item=>({
+
+        id:item.id,
+
+        title:item.title,
+
+        genres:
+          Array.isArray(item.genres)
+            ? item.genres
+            : [],
+
+        rating:String(item.rating),
+
+        eps:Number(item.eps),
+
+        status:item.status,
+
+        color:
+          item.grad
+            ? `linear-gradient(${item.grad})`
+            : "linear-gradient(145deg,#3a2e5c,#8b7fff)",
+
+        synopsis:
+          item.synopsis || ""
+
+      }));
+
+    if(mapped.length){
+
+      animeData.length=0;
+
+      mapped.forEach(
+        anime=>animeData.push(anime)
+      );
+
+      dataConnected=true;
+
+      renderHome();
+      renderSearch();
+
+    }
+
+  }catch(error){
+
+    console.log(
+      "API belum tersedia:",
+      error.message
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   EXTERNAL LINK
+========================================================= */
+
+function openExternal(url){
+
+  if(
+    !url ||
+    url.startsWith("GANTI_")
+  ){
+
+    showToast(
+      "Link belum dikonfigurasi developer."
+    );
+
+    return;
+
+  }
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+}
+
+
+/* =========================================================
+   SOCIAL CONFIG
+========================================================= */
+
+function setupSocial(){
+
+  const links={
+
+    socialTiktok:
+      CONFIG.TIKTOK_URL,
+
+    socialYoutube:
+      CONFIG.YOUTUBE_URL,
+
+    socialWhatsapp:
+      CONFIG.WHATSAPP_URL
+
+  };
+
+  Object.entries(links)
+    .forEach(([id,url])=>{
+
+      const el =
+        document.getElementById(id);
+
+      if(!el)return;
+
+      if(
+        url &&
+        !url.startsWith("GANTI_")
+      ){
+
+        el.href=url;
+
+      }else{
+
+        el.href="#";
+
+        el.onclick=e=>{
+
+          e.preventDefault();
+
+          showToast(
+            "Link belum dikonfigurasi developer."
+          );
+
+        };
+
+      }
+
+    });
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer;
+
+function showToast(message){
+
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent=message;
+
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer=
+    setTimeout(()=>{
+
+      toast.classList.remove("show");
+
+    },2500);
+
+}
+
+
+/* =========================================================
+   SECURITY / HTML ESCAPE
+========================================================= */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   MODAL CLICK OUTSIDE
+========================================================= */
+
+document
+  .getElementById("accountModal")
+  .addEventListener("click",function(e){
+
+    if(e.target===this){
+      closeAccount();
+    }
+
+  });
+
+document
+  .getElementById("adModal")
+  .addEventListener("click",function(e){
+
+    if(e.target===this){
+      closeAdModal();
+    }
+
+  });
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  e=>{
+
+    if(e.key==="Escape"){
+
+      closeMenu();
+      closeAccount();
+      closeAdModal();
+
+    }
+
+  }
+);
+
+
+renderHome();
+
+renderSearch();
+
+renderHistory();
+
+setupSocial();
+
+checkServer();
+
+loadAnimeFromAPI();
+
+updateKeyDisplays();
+
+</script>
+
+</body>
+</html>
