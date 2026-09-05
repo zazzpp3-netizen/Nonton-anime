@@ -1427,6 +1427,79 @@ button,input[type="button"],input[type="submit"]{
   background:var(--paper);
 }
 
+.form-group textarea,
+.form-group select{
+  width:100%;
+  padding:11px 12px;
+  border:2.5px solid var(--ink);
+  border-radius:8px;
+  outline:none;
+  background:var(--paper);
+  font-family:inherit;
+  font-size:13px;
+  resize:vertical;
+}
+
+.hidden{
+  display:none;
+}
+
+.admin-locked{
+  max-width:480px;
+  margin:0 auto;
+  padding:30px;
+  text-align:center;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.admin-wrap{
+  max-width:560px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.admin-card{
+  padding:18px;
+  background:var(--panel);
+  border:var(--border);
+  border-radius:12px;
+}
+
+.admin-card h3{
+  margin:0 0 12px;
+  font-size:16px;
+}
+
+.status-msg{
+  margin-top:10px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.status-msg.ok{color:#3cb371}
+.status-msg.err{color:var(--red)}
+
+.admin-anime-item{
+  padding:12px;
+  margin-bottom:10px;
+  border:1.5px solid var(--ink);
+  border-radius:10px;
+}
+
+.admin-anime-item h4{
+  margin:0 0 4px;
+  font-size:14px;
+}
+
+.admin-anime-item p{
+  margin:0 0 8px;
+  color:var(--muted);
+  font-size:12px;
+}
+
 .google-login-wrap{
   display:flex;
   justify-content:center;
@@ -2363,7 +2436,7 @@ button,input[type="button"],input[type="submit"]{
         Guest
       </div>
 
-      <div class="profile-role">
+      <div class="profile-role" id="profileRole">
         USER
       </div>
 
@@ -2386,6 +2459,119 @@ button,input[type="button"],input[type="submit"]{
               onclick="openAccount()">
         Login / Daftar
       </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =====================================================
+     ADMIN (link rahasia, khusus developer)
+===================================================== -->
+
+<section class="view" id="view-admin">
+
+  <div class="page-head">
+    <h1>ADMIN PANEL</h1>
+    <p>Kelola anime & upload video ke server.</p>
+  </div>
+
+  <div id="adminLocked" class="admin-locked">
+    <p>Akses ditolak. Halaman ini cuma buat developer.</p>
+  </div>
+
+  <div id="adminUnlocked" class="admin-wrap hidden">
+
+    <div id="adminPasswordGate">
+
+      <div class="form-group">
+        <label>Password Admin (backend)</label>
+        <input type="password" id="adminBackendPassword" placeholder="Password dari .env backend">
+      </div>
+
+      <button class="btn btn-red" onclick="adminUnlockBackend()">
+        Sambungkan ke Backend
+      </button>
+
+      <p class="status-msg" id="adminGateStatus"></p>
+
+    </div>
+
+    <div id="adminTools" class="hidden">
+
+      <div class="admin-card">
+
+        <h3>Tambah Anime</h3>
+
+        <div class="form-group">
+          <label>Judul</label>
+          <input id="adminNewTitle" placeholder="Judul anime">
+        </div>
+
+        <div class="form-group">
+          <label>Sinopsis</label>
+          <textarea id="adminNewSynopsis" rows="3" placeholder="Sinopsis..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Genre (pisahkan koma)</label>
+          <input id="adminNewGenres" placeholder="Action, Fantasy">
+        </div>
+
+        <div class="form-group">
+          <label>Rating</label>
+          <input id="adminNewRating" type="number" step="0.1" min="0" max="10" placeholder="8.5">
+        </div>
+
+        <div class="form-group">
+          <label>Poster (URL gambar)</label>
+          <input id="adminNewPoster" placeholder="https://...">
+        </div>
+
+        <button class="btn btn-red" onclick="adminCreateAnime()">
+          Simpan Anime
+        </button>
+
+        <p class="status-msg" id="adminCreateStatus"></p>
+
+      </div>
+
+      <div class="admin-card">
+
+        <h3>Upload Video Episode</h3>
+
+        <div class="form-group">
+          <label>Pilih Anime</label>
+          <select id="adminUploadAnimeId"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Nomor Episode</label>
+          <input id="adminUploadEpisode" type="number" min="1" placeholder="1">
+        </div>
+
+        <div class="form-group">
+          <label>File Video</label>
+          <input id="adminUploadFile" type="file" accept="video/*">
+        </div>
+
+        <button class="btn btn-red" onclick="adminUploadVideo()">
+          Upload ke HDD
+        </button>
+
+        <p class="status-msg" id="adminUploadStatus"></p>
+
+      </div>
+
+      <div class="admin-card">
+
+        <h3>Daftar Anime</h3>
+
+        <div id="adminAnimeList"></div>
+
+      </div>
 
     </div>
 
@@ -2603,14 +2789,10 @@ button,input[type="button"],input[type="submit"]{
     </div>
 
     <p class="google-login-note">
-      Masuk menggunakan akun Google. Tombol Google hanya dimuat saat kamu membuka menu login.
+      Masuk menggunakan akun Google.
     </p>
 
     <div class="google-login-wrap" id="googleLoginButton"></div>
-
-    <p class="google-login-note">
-      Client ID: Google Identity Services
-    </p>
 
   </div>
 
@@ -3959,6 +4141,8 @@ function renderGoogleLogin(){
   googleButtonRendered=true;
 }
 
+let currentRole="guest";
+
 function handleGoogleCredential(response){
 
   if(!response || !response.credential){
@@ -3966,52 +4150,321 @@ function handleGoogleCredential(response){
     return;
   }
 
-  try{
+  fetch("/api/auth/google",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({credential:response.credential})
+  })
+    .then(res=>res.json())
+    .then(data=>{
 
-    // Decode hanya untuk tampilan frontend.
-    // Untuk autentikasi produksi, credential wajib diverifikasi di server.
-    const payload = JSON.parse(
-      decodeURIComponent(
-        atob(response.credential.split(".")[1])
-          .split("")
-          .map(c=>"%"+("00"+c.charCodeAt(0).toString(16)).slice(-2))
-          .join("")
-      )
-    );
+      if(!data.success){
+        showToast(data.error||"Login Google gagal diverifikasi.");
+        return;
+      }
 
-    const name = payload.name || payload.email || "Google User";
+      applyGoogleLogin(data.user,data.role);
 
-    localStorage.setItem("animeotaku_google_name",name);
-    localStorage.setItem("animeotaku_google_email",payload.email || "");
+      closeAccount();
+      showToast("Berhasil masuk sebagai "+data.user.name+".");
 
-    document
-      .getElementById("profileName")
-      .textContent=name;
+    })
+    .catch(error=>{
+      console.error("Google verify error:",error);
+      showToast("Gagal menghubungi server verifikasi login.");
+    });
 
-    closeAccount();
-    showToast("Berhasil masuk sebagai "+name+".");
+}
 
-  }catch(error){
-    console.error("Google login decode error:",error);
-    showToast("Credential Google tidak dapat diproses.");
+function applyGoogleLogin(user,role){
+
+  currentRole=role;
+
+  localStorage.setItem("animeotaku_google_name",user.name);
+  localStorage.setItem("animeotaku_google_email",user.email||"");
+  localStorage.setItem("animeotaku_role",role);
+
+  document
+    .getElementById("profileName")
+    .textContent=user.name;
+
+  const roleEl=
+    document.getElementById("profileRole");
+
+  if(roleEl){
+    roleEl.textContent=
+      role==="developer" ? "DEVELOPER / OWNER" : "USER";
   }
+
 }
 
 function restoreGoogleProfile(){
 
-  const name =
+  const name=
     localStorage.getItem("animeotaku_google_name");
 
+  const role=
+    localStorage.getItem("animeotaku_role")||"guest";
+
+  currentRole=role;
+
   if(name){
-    const profile =
+
+    const profile=
       document.getElementById("profileName");
 
     if(profile) profile.textContent=name;
+
+    const roleEl=
+      document.getElementById("profileRole");
+
+    if(roleEl){
+      roleEl.textContent=
+        role==="developer" ? "DEVELOPER / OWNER" : "USER";
+    }
+
   }
+
 }
 
 
 restoreGoogleProfile();
+handleSecretAdminRoute();
+
+window.addEventListener("hashchange",handleSecretAdminRoute);
+
+function handleSecretAdminRoute(){
+
+  if(location.hash==="#/Developer/codex/zazz/vidio/server"){
+    go("admin");
+    renderAdminAccess();
+  }
+
+}
+
+function renderAdminAccess(){
+
+  const locked=
+    document.getElementById("adminLocked");
+
+  const unlocked=
+    document.getElementById("adminUnlocked");
+
+  if(currentRole!=="developer"){
+
+    locked.classList.remove("hidden");
+    unlocked.classList.add("hidden");
+    return;
+
+  }
+
+  locked.classList.add("hidden");
+  unlocked.classList.remove("hidden");
+
+  if(sessionStorage.getItem("animeotaku_admin_password")){
+    adminUnlockBackend();
+  }
+
+}
+
+function adminAuthHeaders(){
+  return {
+    "x-admin-password":
+      sessionStorage.getItem("animeotaku_admin_password")||""
+  };
+}
+
+async function adminUnlockBackend(){
+
+  const passInput=
+    document.getElementById("adminBackendPassword");
+
+  const password=
+    passInput.value || sessionStorage.getItem("animeotaku_admin_password");
+
+  const statusEl=
+    document.getElementById("adminGateStatus");
+
+  if(!password){
+    statusEl.textContent="Password backend belum diisi.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  sessionStorage.setItem("animeotaku_admin_password",password);
+
+  if(!CONFIG.API_URL){
+    statusEl.textContent=
+      "CONFIG.API_URL belum diisi ke alamat backend kamu.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  try{
+
+    const res=await fetch(
+      CONFIG.API_URL+"/api/admin/verify",
+      {headers:adminAuthHeaders()}
+    );
+
+    if(res.status===401 || res.status===403){
+      statusEl.textContent="Password atau IP kamu ditolak backend.";
+      statusEl.className="status-msg err";
+      return;
+    }
+
+    if(!res.ok){
+      statusEl.textContent="Gagal menghubungi backend.";
+      statusEl.className="status-msg err";
+      return;
+    }
+
+    document.getElementById("adminPasswordGate").classList.add("hidden");
+    document.getElementById("adminTools").classList.remove("hidden");
+
+    adminLoadAnimeList();
+
+  }catch(error){
+    statusEl.textContent="Gagal menghubungi backend ("+CONFIG.API_URL+").";
+    statusEl.className="status-msg err";
+  }
+
+}
+
+async function adminLoadAnimeList(){
+
+  const res=await fetch(CONFIG.API_URL+"/api/anime");
+  const list=await res.json();
+
+  const container=document.getElementById("adminAnimeList");
+  const select=document.getElementById("adminUploadAnimeId");
+
+  container.innerHTML="";
+  select.innerHTML="";
+
+  list.forEach(anime=>{
+
+    const item=document.createElement("div");
+    item.className="admin-anime-item";
+
+    item.innerHTML=`
+      <h4>${escapeHTML(anime.title)}</h4>
+      <p>${escapeHTML(anime.synopsis||"(tanpa sinopsis)")}</p>
+      <button class="btn btn-white" onclick="adminDeleteAnime('${anime.id}')">
+        Hapus
+      </button>
+    `;
+
+    container.appendChild(item);
+
+    const opt=document.createElement("option");
+    opt.value=anime.id;
+    opt.textContent=anime.title;
+    select.appendChild(opt);
+
+  });
+
+}
+
+async function adminCreateAnime(){
+
+  const title=document.getElementById("adminNewTitle").value.trim();
+  const synopsis=document.getElementById("adminNewSynopsis").value.trim();
+
+  const genres=document.getElementById("adminNewGenres").value
+    .split(",").map(g=>g.trim()).filter(Boolean);
+
+  const rating=parseFloat(document.getElementById("adminNewRating").value)||0;
+  const poster=document.getElementById("adminNewPoster").value.trim();
+
+  const statusEl=document.getElementById("adminCreateStatus");
+
+  if(!title){
+    statusEl.textContent="Judul wajib diisi.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  const res=await fetch(CONFIG.API_URL+"/api/admin/anime",{
+    method:"POST",
+    headers:{"Content-Type":"application/json",...adminAuthHeaders()},
+    body:JSON.stringify({title,synopsis,genres,rating,poster})
+  });
+
+  if(!res.ok){
+    const err=await res.json();
+    statusEl.textContent=err.error||"Gagal menyimpan.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  statusEl.textContent="Anime berhasil ditambahkan.";
+  statusEl.className="status-msg ok";
+
+  document.getElementById("adminNewTitle").value="";
+  document.getElementById("adminNewSynopsis").value="";
+  document.getElementById("adminNewGenres").value="";
+  document.getElementById("adminNewRating").value="";
+  document.getElementById("adminNewPoster").value="";
+
+  adminLoadAnimeList();
+
+}
+
+async function adminDeleteAnime(id){
+
+  if(!confirm("Yakin hapus anime ini?"))return;
+
+  await fetch(CONFIG.API_URL+"/api/admin/anime/"+id,{
+    method:"DELETE",
+    headers:adminAuthHeaders()
+  });
+
+  adminLoadAnimeList();
+
+}
+
+async function adminUploadVideo(){
+
+  const animeId=document.getElementById("adminUploadAnimeId").value;
+  const episode=document.getElementById("adminUploadEpisode").value;
+  const fileInput=document.getElementById("adminUploadFile");
+  const statusEl=document.getElementById("adminUploadStatus");
+
+  if(!animeId || !episode || !fileInput.files[0]){
+    statusEl.textContent="Lengkapi anime, episode, dan file video.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  const formData=new FormData();
+  formData.append("animeId",animeId);
+  formData.append("episode",episode);
+  formData.append("video",fileInput.files[0]);
+
+  statusEl.textContent="Mengunggah ke HDD...";
+  statusEl.className="status-msg";
+
+  const res=await fetch(CONFIG.API_URL+"/api/admin/upload-video",{
+    method:"POST",
+    headers:adminAuthHeaders(),
+    body:formData
+  });
+
+  if(!res.ok){
+    const err=await res.json();
+    statusEl.textContent=err.error||"Upload gagal.";
+    statusEl.className="status-msg err";
+    return;
+  }
+
+  statusEl.textContent="Video berhasil diunggah.";
+  statusEl.className="status-msg ok";
+
+  fileInput.value="";
+  document.getElementById("adminUploadEpisode").value="";
+
+}
 
 
 /* =========================================================

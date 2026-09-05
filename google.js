@@ -1,8 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
 
-const client = new OAuth2Client(
-  process.env.19161840368-lodj5j4fiv5nnfb2kphc9gcavsi9qn7i.apps.googleusercontent.com
-);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -27,8 +25,21 @@ export default async function handler(req, res) {
 
     const payload = ticket.getPayload();
 
+    // Role developer ditentukan di server berdasarkan email Google
+    // pemilik project (diisi lewat env var OWNER_EMAIL di Vercel),
+    // bukan berdasarkan input dari frontend.
+    const ownerEmail = (process.env.OWNER_EMAIL || "")
+      .trim()
+      .toLowerCase();
+
+    const email = (payload.email || "").toLowerCase();
+
+    const role =
+      ownerEmail && email === ownerEmail ? "developer" : "user";
+
     return res.status(200).json({
       success: true,
+      role,
       user: {
         id: payload.sub,
         name: payload.name,

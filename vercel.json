@@ -1,3 +1,9 @@
 {
-  "version": 2
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/Developer/codex/zazz/vidio/server/:path*",
+      "destination": "https://GANTI_DENGAN_DOMAIN_TUNNEL_KAMU/Developer/codex/zazz/vidio/server/:path*"
+    }
+  ]
 }
